@@ -1,0 +1,187 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>UTS LAB PC6</title>
+</head>
+<body>
+<center>
+	<h1>Edwin Brayen Lumban Tobing
+		<br> 201401118</h1>
+			<body style="background-image: url(ws.jfif); background-size: cover; background-repeat: repeat; background-attachment: fixed;"></body>
+	<div class="row">
+		<div class="column">
+			<canvas id='canvas1' style='display:block;margin:10px'></canvas>
+			<canvas id='canvas2' style='display:block;margin:10px'></canvas>
+		</div>
+            <div class="column">
+                <h2>UTS</h2>
+                <button id='read'>READ IMAGE</button>
+			<button id='ori'>ORIGINAL IMAGE</button><br><br>
+<br>
+			<button id='a'>RG Mean Filtering</button>	
+			<button id='b'>RGBY</button>
+        </div>
+
+    </div>
+</center>
+</body>
+
+
+<style>
+* {
+  box-sizing: border-box;
+}
+.column {
+  float: left;
+  padding: 10px;
+  width: 33.3%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+h1{
+color: #FFFFFF
+}
+
+h2{
+color: #FFFFFF
+}
+</style>
+<script src='pc.js'></script>
+<script>
+	var canvas = document.getElementById('canvas1')
+	var obj = new pc(canvas)
+	obj.image2canvas("th.jpg")
+	var canvas2 = document.getElementById('canvas2')
+	var obj2 = new pc(canvas2)
+	obj2.blank2canvas(200,200)
+	var tes = new Array()
+	
+	document.getElementById('read').addEventListener('click',function(){
+		tes = obj.image2read()
+	})
+	
+	document.getElementById('ori').addEventListener('click',function(){
+		obj.image2original()
+	})
+	document.getElementById('a').addEventListener('click',function(){
+	
+		//copy array to array without reference
+		filtersize = 5
+		borderparam = (filtersize - 1)/2
+	meandoubleparam = filtersize*filtersize
+	tesbackup = new Array()
+	for(var c=0;c<tes.length;c++){
+	temp = new Array()
+	for(var d=0;d<4;d++){
+	temp.push(tes[c][d])
+	}
+	tesbackup.push(temp)
+	}
+	//end of copy
+	var wnow=obj.width
+	for (var i=0;i<tesbackup.length;i++){
+	x=obj.i2x(i)
+	y=obj.i2y(i)
+
+
+	if(x<=wnow/4){
+	tes[i][0] = (255)
+	tes[i][1] = (tesbackup[i][1])
+	tes[i][2] = (tesbackup[i][2])
+	tes[i][3] = tesbackup[i][3]
+
+	}
+	else if(x<=wnow/2){
+	
+	tes[i][0]=(tesbackup[i][0])
+	tes[i][1]=255
+	tes[i][2]=(tesbackup[i][2])
+	tes[i][3]=tesbackup[i][3]
+	}
+	else if(x>=wnow/2){
+	xstart = obj.i2x(i) - borderparam
+	xend = obj.i2x(i) + borderparam
+	ystart = obj.i2y(i) - borderparam
+	yend = obj.i2y(i) + borderparam
+	red = 0
+	green = 0
+	blue = 0
+	disvparam = 0
+	for(var yc=ystart; yc<=yend; yc++){
+	for(var xc=xstart; xc<=xend; xc++){
+	if(yc>=0 && xc>=0 && xc<obj.width && yc<obj.height){
+	red += tesbackup[obj.xy2i(xc,yc)][0]
+	green += tesbackup[obj.xy2i(xc,yc)][1]
+	blue += tesbackup[obj.xy2i(xc,yc)][2]
+	disvparam++;
+	}
+	}
+	}
+	tes[i][0] = Math.floor(red/disvparam)
+	tes[i][1] = Math.floor(green/disvparam)
+	tes[i][2] = Math.floor(blue/disvparam)
+	}
+	}
+	
+	obj.array2canvas(tes)
+	})
+
+
+document.getElementById('b').addEventListener('click',function(){
+
+//copy array to array without reference
+tesbackup = new Array()
+for(var c=0;c<tes.length;c++){
+temp = new Array()
+for(var d=0;d<4;d++){
+temp.push(tes[c][d])
+}
+tesbackup.push(temp)
+}
+//end of copy
+var hnow=obj.height
+var wnow=obj.width
+for (var i=0;i<tesbackup.length;i++){
+x=obj.i2x(i)
+y=obj.i2y(i)
+
+
+if(y<hnow/2 && x<wnow/2){
+tes[i][0]=255
+tes[i][1]=tesbackup[i][1]
+tes[i][2]=tesbackup[i][2]
+tes[i][3]=tesbackup[i][3]
+}
+
+else if(y>hnow/2 && x<wnow/2){
+tes[i][0]=255
+tes[i][1]=255
+tes[i][2]=tesbackup[i][2]
+tes[i][3]=tesbackup[i][3]
+
+}
+else if(y<hnow/2 && x>wnow/2){
+tes[i][0]=tesbackup[i][0]
+tes[i][1]=255
+tes[i][2]=tesbackup[i][2]
+tes[i][3]=tesbackup[i][3]
+
+}
+else if(y>hnow/2 && x>wnow/2){
+tes[i][0]=tesbackup[i][0]
+tes[i][1]=tesbackup[i][1]
+tes[i][2]=255
+tes[i][3]=tesbackup[i][3]
+}
+
+}
+
+obj.array2canvas(tes)
+})
+	</script>
